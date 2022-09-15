@@ -13,13 +13,10 @@ library(htmltools)
 library(psychTestR)
 library(tibble)
 
-
-
 jspsych_dir <- "jspsych-6.1.0"
 
 head <- tags$head(
   # jsPsych files
-  
   
   # # If you want to use original jspsych.js, use this:
   # includeScript(file.path(jspsych_dir, "jspsych.js")),
@@ -61,7 +58,7 @@ ui_exp <- tags$div(
 )
 
 
-poly_ratio <- page(               #NB - this experiment is pitch only but named "poly_ratio" because it used to be part of the ratio/tempo/pitch study, and because we want to concatenate this data with the original pitch data
+poly_ratio <- page(               #naming is just a leftover from a previous exp that I forgot to change. Should be edited before actutal data collection
   ui = ui_exp,
   label = "poly_ratio",
   get_answer = function(input, ...)
@@ -79,8 +76,8 @@ welcome <-
   one_button_page(div(
     HTML("<img src='img/au_logo.png'></img> <img src='img/mib_logo.png'></img>"),
     div(
-      h3(strong("One-minute science!")),
-      p(" Reading this text literally takes longer than participating in this pilot experiment on spontaneous motor tempo. We we will use your data to explore research ideas worth pursuing within the realm of musical beat perception. Your participation is much appreciated. Thank you!"),
+      h3(strong("Do you have a moment?")),
+      p("We would be very grateful if you could participate in this super short pilot experiment on spontaneous motor tempo. We will use your data to explore research ideas worth pursuing within the realm of musical beat perception. Your participation is much appreciated. Thank you!"),
       p("If possible, please use a device with a touchscreen, alternatively a clickpad or mouse, rather than a laptop touchpad. You can not use a keyboard."),
       
       HTML("<br>"),
@@ -98,7 +95,7 @@ device <-dropdown_page(
   prompt = div(h4(strong("Device")),
                p("Which device you are using now?")),
               save_answer=TRUE,
-  choices = c("Select current device", "Smartphone (touchscreen)","Tablet (touchscreen)","Laptop (click button/clickpad)", "Laptop (external mouse)", "Desktop (external mouse)"),
+  choices = c("Select current device", "Smartphone (touchscreen)","Tablet (touchscreen)","Laptop (touchscreen)","Laptop (click button/clickpad)", "Laptop (external mouse)", "Desktop (external mouse)"),
   alternative_choice = TRUE,
   alternative_text = "Other - please state which?",
   next_button_text = "Next",
@@ -134,6 +131,27 @@ browser <- dropdown_page(
     else if (answer=="") 
       "Please answer the question. If you select 'Other' at the bottom of the list, please state the name of your browser in the designated field."
     else TRUE
+  },
+  on_complete = function(answer, state, ...) {
+    set_global(key = "browser", value = answer, state = state)
+  }  
+),
+
+time <- dropdown_page(
+  label = "time",
+  prompt = div(h4(strong("How old is your day?")),
+               p("How many hours have passed since you woke up this morning?"),
+               # HTML("<br>"),
+               p(),
+  ),
+  save_answer=TRUE,
+  choices = c("Please select"," less than 1 hour","1 hour","2 hours","3","4", "5","6","7","8","9","10","11","12","13","14", "15","16","17","18","19","20","21","22","23","24", "25 hours or more"),
+  next_button_text = "Next",
+  max_width_pixels = 250,
+  validate = function(answer, ...) {
+    if (answer=="Please select")
+      "Please tells us how many hours have passed since you woke up this morning. An approximate number is perfectly fine."
+        else TRUE
   },
   on_complete = function(answer, state, ...) {
     set_global(key = "browser", value = answer, state = state)
@@ -252,7 +270,7 @@ code_2 <- text_input_page(
   button_text = "Next",
   validate = function(answer, ...) {
     if (answer=="")
-      "Please enter the code you have previously used in this experiment."
+      "Please enter the code you have previously used in this experiment. If you don't remember your code, make up a new one and use that for any future participation in this same experiment."
     else TRUE
   },
   on_complete = function(answer, state, ...) {
@@ -270,12 +288,27 @@ thanks<-final_page(div(
             HTML("<br>"),
             
             p("Your data has been saved now and you can safely close the browser window.")
+            # p("If you want to, you can click the button below")
              )
             ))
 
+# facts<-c("E is the most common letter and appears in 11 percent of all english words.",  
+#                 "Pringles aren't actually potato chips.", 
+#                 "Water makes different pouring sounds depending on its temperature (colder water => higher pitch)"
+#                 )
+# ff<-sample(facts, 1)
+
+
+# fun_fact<-final_page(div(
+#   HTML("<img src='img/au_logo.png'></img> <img src='img/mib_logo.png'></img>"),
+#   div(
+#     h3(strong("Did you know that...")),
+#     p("insert fun fact here"),
+#     p("For more fun facts, repeat the test anytime. www.cmb-onlinetest.uni.au.dk/SMT.")
+#   )
+# ))
 
 elts <- join(
-  
    intro,
    poly_ratio,
    elt_save_results_to_disk(complete = FALSE),
@@ -286,6 +319,7 @@ elts <- join(
    ollen,
    elt_save_results_to_disk(complete = TRUE),
    thanks
+   # fun_fact
 )
 
 
